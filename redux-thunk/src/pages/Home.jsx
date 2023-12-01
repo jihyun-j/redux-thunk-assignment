@@ -3,13 +3,9 @@ import Header from "../components/Home/Header";
 import AddForm from "../components/Home/AddForm";
 import LetterList from "../components/Home/LetterList";
 import React from "react";
-import { useSelector } from "react-redux/es/hooks/useSelector";
 import styled from "styled-components";
 
 function Home() {
-  const data = useSelector((state) => state.letter);
-  // ss
-
   return (
     <>
       <Layout></Layout>
@@ -31,7 +27,7 @@ const HomeContainer = styled.div`
     rgba(64, 0, 88, 1) 77%,
     #52033d 100%
   );
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;

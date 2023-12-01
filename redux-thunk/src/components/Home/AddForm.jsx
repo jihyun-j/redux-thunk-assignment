@@ -1,27 +1,61 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { __addLetters } from "../../redux/module/letterSlice";
+
+import { v4 } from "uuid";
+
+console.log(v4());
 
 function AddForm() {
   const [content, setContent] = useState("");
+  const nickname = localStorage.getItem("nickname");
+  const avatar = localStorage.getItem("avatar");
   const userId = localStorage.getItem("id");
+  const dispatch = useDispatch();
 
   const onChangeContent = (e) => {
     setContent(e.target.value);
   };
 
+  const onClickAddLetter = () => {
+    const newLetter = {
+      id: v4(),
+      nickname,
+      content,
+      avatar,
+      writedTo: "",
+      createdAt: new Date(),
+      userId,
+    };
+    dispatch(__addLetters(newLetter));
+  };
+
   return (
     <AddFormContainer>
-      <NickName>닉네임: {userId}</NickName>
-      <TextArea
-        placeholder="내용을 입력해 주세요."
-        value={content}
-        onChange={onChangeContent}></TextArea>
+      {/* <NickName>{nickname}</NickName> */}
+
+      <TextAreaWrapper>
+        <Label>닉네임 : {nickname}</Label>
+        <TextArea
+          placeholder="내용을 입력해 주세요."
+          value={content}
+          onChange={onChangeContent}></TextArea>
+      </TextAreaWrapper>
       <SelectMember>
-        <option value="카리나">카리나</option>
-        <option value="닝닝">닝닝</option>
-        <option value="윈터">윈터</option>
-        <option value="지젤">지젤</option>
+        <option value="A HEAD FULL OF DREAMS">A HEAD FULL OF DREAMS</option>
+        <option value="GHOST STORIES">GHOST STORIES</option>
+        <option value="MYLO XYLOTO">MYLO XYLOTO</option>
+        <option value="VIVA LA VIDA OR DEATH AND ALL HIS FRIENDS">
+          VIVA LA VIDA OR DEATH AND ALL HIS FRIENDS
+        </option>
+        <option value="X&Y">X&Y</option>
+        <option value="A RUSH OF BLOOD TO THE HEAD">
+          A RUSH OF BLOOD TO THE HEAD
+        </option>
+        <option value="PARACHUTES">PARACHUTES</option>
       </SelectMember>
+      <Button onClick={onClickAddLetter}>추가</Button>
     </AddFormContainer>
   );
 }
@@ -33,18 +67,35 @@ const AddFormContainer = styled.form`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 10px;
   width: 500px;
+  border: 1px solid #fff;
 `;
 
-const NickName = styled.p``;
+const TextAreaWrapper = styled.div`
+  position: relative;
+`;
+
+const Label = styled.label`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 18px;
+  color: #ffa2f3;
+  font-family: sans-serif;
+`;
+
 const TextArea = styled.textarea`
+  background-color: transparent;
+  border: 1px solid #ffa2f3;
+  padding: 40px 8px 10px 8px;
+  outline: none;
+  color: #fff;
   resize: none;
   width: 400px;
   height: 300px;
+  font-family: sans-serif;
 `;
 const SelectMember = styled.select``;
 
-// api문서대로 서버가 잘동작하는지 확인하기 위해서
-// 누구의 잘못인지 파악용
-// 브라우저에서 발생하는 콜스에러 브라우저의 도메인 서버의 도메인이 다른경우 콜스 에러가 남
-//
+const Button = styled.button``;

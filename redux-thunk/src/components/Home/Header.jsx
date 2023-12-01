@@ -49,7 +49,7 @@ const HeaderTitle = styled.h2`
   font-size: 50px;
   font-weight: bold;
   color: #ffa2f3;
-  text-shadow: #f9dcf5d9 1px 0 8px;
+  text-shadow: #f9dcf5d9 -1px 0 5px;
 `;
 
 const Description = styled.span`
