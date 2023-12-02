@@ -1,17 +1,20 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { showSignup } from "../../redux/module/login";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { logIn } from "../../redux/module/auth";
+import { logIn } from "../../redux/module/authSlice";
 
 function LogInForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const logData = useSelector((state) => state.authSlice);
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
+  console.log(logData);
   const onChangeUserId = (e) => {
     setUserId(e.target.value);
   };
@@ -20,37 +23,50 @@ function LogInForm() {
     setPassword(e.target.value);
   };
 
-  const loginHandler = async (id, password) => {
-    const result = await axios.post(
-      "https://moneyfulpublicpolicy.co.kr/login",
-      {
-        id,
-        password,
-      }
-    );
-
-    const { accessToken, nickname, userId } = result.data;
-
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("nickname", nickname);
-    localStorage.setItem("id", userId);
-  };
-
-  const onClickShowLogIn = (e) => {
-    navigate("/");
-    loginHandler(userId, password);
-    dispatch(logIn({ id: userId, password: password }));
-  };
-
   const onClickSignUp = (e) => {
     e.preventDefault();
     dispatch(showSignup(true));
   };
 
+  const loginHandler = async (id, password) => {
+    try {
+      const response = await axios.post(
+        "https://moneyfulpublicpolicy.co.kr/login",
+        {
+          id,
+          password,
+        }
+      );
+      const { accessToken, nickname, userId } = response.data;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("id", userId);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const completeLoginHandler = (e) => {
+    e.preventDefault();
+    // input이 비어 있지 않을 때
+    if (userId === "") {
+      setErrorMsg("ID를 입력해주세요.");
+    } else if (password === "") {
+      setErrorMsg("비밀번호를 입력해주세요");
+    } else {
+      navigate("/");
+      loginHandler(userId, password);
+      dispatch(logIn({ id: userId, password: password }));
+    }
+  };
+
+  console.log(logData);
   return (
     <LogInFormContainer>
       <LogInFormTitle>Log In</LogInFormTitle>
 
+      <ErrorMag>{errorMsg}</ErrorMag>
       <InputWrapper>
         <Label htmlFor="id">ID</Label>
         <Input
@@ -76,9 +92,8 @@ function LogInForm() {
           onChange={onChangeUserPassword}
         />
       </InputWrapper>
-
       <ButtonWrapper>
-        <LogInButton onClick={onClickShowLogIn}>Log In</LogInButton>
+        <LogInButton onClick={completeLoginHandler}>Log In</LogInButton>
         <SignUpButton onClick={onClickSignUp}>Sign Up</SignUpButton>
       </ButtonWrapper>
     </LogInFormContainer>
@@ -108,6 +123,12 @@ const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
+`;
+
+const ErrorMag = styled.p`
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #fff;
 `;
 
 const Label = styled.label`

@@ -6,7 +6,9 @@ export const __getLetters = createAsyncThunk(
   "getLetters",
   async (payload, thunkAPI) => {
     try {
-      const response = await axios.get("http://localhost:4000/letters");
+      const response = await axios.get(
+        "http://localhost:5000/letters?_sort=createdAt&_order=asc"
+      );
       return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
@@ -20,7 +22,7 @@ export const __addLetters = createAsyncThunk(
   async (payload, thunkAPI) => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/letters",
+        "http://localhost:5000/letters",
         payload
       );
       return thunkAPI.fulfillWithValue(response.data);
@@ -36,7 +38,7 @@ export const __deleteLetters = createAsyncThunk(
   async (payload, thunkAPI) => {
     try {
       const response = await axios.delete(
-        "http://localhost:4000/letters",
+        "http://localhost:5000/letters",
         payload
       );
       return thunkAPI.fulfillWithValue(response.data);

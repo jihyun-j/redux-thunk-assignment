@@ -27,7 +27,7 @@ function LetterList() {
           <LetterListWrapper
             key={letter.id}
             onClick={() => onClickDetail(letter.id)}>
-            <UserNickName>{letter.nickname}</UserNickName>
+            <UserNickName>{letter.nickname.replace(/["]+/g, "")}</UserNickName>
             <PostContent>{letter.content}</PostContent>
             <PostDate>{letter.createdAt}</PostDate>
             {/* <UserPhoto src={letter.avatar}></UserPhoto> */}

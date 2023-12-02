@@ -1,5 +1,5 @@
 import login from "../module/login";
-import auth from "../module/auth";
+import authSlice from "../module/authSlice";
 import member from "../module/album";
 import letterSlice from "../module/letterSlice";
 
@@ -8,7 +8,7 @@ const { configureStore } = require("@reduxjs/toolkit");
 const store = configureStore({
   reducer: {
     login,
-    auth,
+    authSlice,
     member,
     letterSlice,
   },

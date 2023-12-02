@@ -1,41 +1,87 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Nav from "../components/Layout/Layout";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
 
 function Profile() {
-  const userInfo = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const userId = localStorage.getItem("id");
+  const nickName = localStorage.getItem("nickname");
+  const getAvatar = localStorage.getItem("avatar");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editNickName, setEditNickName] = useState("");
 
+  const accessToken = localStorage.getItem("accessToken");
   const profileData = async () => {
-    const accessToken = localStorage.getItem("accessToken");
     const result = await axios
       .get("https://moneyfulpublicpolicy.co.kr/user", {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       })
+
       .catch((err) => {
         console.log(err);
       });
 
-    localStorage.setItem("avatar", result.data.avatar);
+    localStorage.setItem("avatar", JSON.stringify(result.data.avatar));
   };
 
   useEffect(() => {
-    profileData().then((res) => console.log(res));
+    profileData();
   }, []);
+
+  const onChangeNickName = (e) => {
+    setEditNickName(e.target.value);
+  };
+
+  const onClickEdit = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const onCompleteEdit = async () => {
+    const result = await axios
+      .patch(
+        "https://moneyfulpublicpolicy.co.kr/profile",
+        {
+          nickname: editNickName,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+      .catch((err) => {
+        console.log(err);
+      });
+    localStorage.setItem("nickname", editNickName);
+    console.log(result);
+    setIsEditing(!isEditing);
+  };
 
   return (
     <>
       <Nav></Nav>
       <ProfileContainer>
         <ProfileWrapper>
-          <UserAvatar></UserAvatar>
-          <UserNickName>User Nickname</UserNickName>
-          <UserId>User Id</UserId>
-          <EditButton>수정</EditButton>
+          <UserAvatar imgUrl={getAvatar}></UserAvatar>
+          {!isEditing ? (
+            <UserNickName>{nickName}</UserNickName>
+          ) : (
+            <EditUserNickName
+              defaultValue={nickName}
+              onChange={onChangeNickName}></EditUserNickName>
+          )}
+          <UserId>{userId}</UserId>
+          {!isEditing ? (
+            <EditButton onClick={onClickEdit}>수정하기</EditButton>
+          ) : (
+            <>
+              <CancelButton>수정취소</CancelButton>
+              <EditButton onClick={onCompleteEdit}>수정완료</EditButton>
+            </>
+          )}
         </ProfileWrapper>
       </ProfileContainer>
     </>
@@ -69,7 +115,7 @@ const ProfileWrapper = styled.div`
 `;
 
 const UserAvatar = styled.div`
-  background-image: url("https://images.unsplash.com/photo-1701308450512-d3a2aeeff787?q=80&w=2408&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+  background-image: url(${(props) => props.imgUrl});
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -86,10 +132,14 @@ const UserNickName = styled.p`
   font-weight: bold;
 `;
 
+const EditUserNickName = styled.input``;
+
 const UserId = styled.p`
   color: #ffa2f3;
   font-family: sans-serif;
 `;
+
+const CancelButton = styled.button``;
 
 const EditButton = styled.button`
   background-color: #ffa2f3;

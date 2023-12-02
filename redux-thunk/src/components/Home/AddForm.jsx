@@ -2,16 +2,14 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { __addLetters } from "../../redux/module/letterSlice";
-
 import { v4 } from "uuid";
-
-console.log(v4());
 
 function AddForm() {
   const [content, setContent] = useState("");
   const nickname = localStorage.getItem("nickname");
   const avatar = localStorage.getItem("avatar");
   const userId = localStorage.getItem("id");
+  const createdAt = new Date();
   const dispatch = useDispatch();
 
   const onChangeContent = (e) => {
@@ -25,7 +23,7 @@ function AddForm() {
       content,
       avatar,
       writedTo: "",
-      createdAt: new Date(),
+      createdAt: `${createdAt.getFullYear()}. ${createdAt.getMonth()}. ${createdAt.getDate()}`,
       userId,
     };
     dispatch(__addLetters(newLetter));
@@ -36,7 +34,7 @@ function AddForm() {
       {/* <NickName>{nickname}</NickName> */}
 
       <TextAreaWrapper>
-        <Label>닉네임 : {nickname}</Label>
+        <Label>닉네임 : {nickname.replace(/["]+/g, "")}</Label>
         <TextArea
           placeholder="내용을 입력해 주세요."
           value={content}

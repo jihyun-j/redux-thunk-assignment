@@ -1,16 +1,19 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 function Layout() {
-  const user = useSelector((state) => state.auth);
+  const navigate = useNavigate();
 
+  const navigateToProfile = () => {
+    navigate("/profile");
+  };
   return (
     <NavContainer>
       <HomePage>Home</HomePage>
 
       <NavWrapper>
-        <NavList>Profile</NavList>
+        <NavList onClick={navigateToProfile}>Profile</NavList>
         <NavList>Log Out</NavList>
       </NavWrapper>
     </NavContainer>
