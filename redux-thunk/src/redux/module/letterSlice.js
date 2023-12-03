@@ -48,6 +48,21 @@ export const __deleteLetters = createAsyncThunk(
   }
 );
 
+// LETTER 수정
+export const __editLetters = createAsyncThunk(
+  "editLetters",
+  async (payload, thunkAPI) => {
+    try {
+      const response = await axios.patch(
+        "http://localhost:5000/letters",
+        payload
+      );
+      return thunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
 const initialState = {
   letters: [],
   isLoading: false,
@@ -67,6 +82,13 @@ const letterSlice = createSlice({
     },
     [__addLetters.fulfilled]: (state, action) => {
       state.letters.push(action.payload);
+    },
+    [__editLetters.fulfilled]: (state, action) => {
+      state.letters = action.payload;
+    },
+    [__deleteLetters.fulfilled]: (state, action) => {
+      const letterId = action.payload;
+      return state.filter((letter) => letter.id !== letterId);
     },
   },
 });

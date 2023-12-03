@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Nav from "../components/Layout/Layout";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const userId = localStorage.getItem("id");
@@ -9,6 +10,7 @@ function Profile() {
   const getAvatar = localStorage.getItem("avatar");
   const [isEditing, setIsEditing] = useState(false);
   const [editNickName, setEditNickName] = useState("");
+  const navigate = useNavigate();
 
   const accessToken = localStorage.getItem("accessToken");
   const profileData = async () => {
@@ -20,10 +22,16 @@ function Profile() {
       })
 
       .catch((err) => {
-        console.log(err);
-      });
+        let status = err.response.status;
 
-    localStorage.setItem("avatar", JSON.stringify(result.data.avatar));
+        if (status === 401) {
+          localStorage.setItem("id", "");
+          localStorage.setItem("accessToken", "");
+          localStorage.setItem("nickname", "");
+          localStorage.setItem("avatar", "");
+          navigate("/login");
+        }
+      });
   };
 
   useEffect(() => {
@@ -56,16 +64,62 @@ function Profile() {
         console.log(err);
       });
     localStorage.setItem("nickname", editNickName);
-    console.log(result);
     setIsEditing(!isEditing);
+  };
+
+  const inputRef = useRef(null);
+  const [fileReaderThumbnail, setFileReaderThumbnail] = useState();
+
+  const onClickImage = () => {
+    inputRef.current?.click();
+  };
+
+  const encodeFile = (fileBlob) => {
+    // FileReader 방식
+    const reader = new FileReader();
+
+    if (!fileBlob) return;
+
+    reader.readAsDataURL(fileBlob);
+
+    return new Promise((resolve) => {
+      reader.onload = () => {
+        const result = reader.result;
+
+        setFileReaderThumbnail(result);
+
+        resolve();
+      };
+    });
+  };
+
+  const onFileReaderChange = (e) => {
+    const { files } = e.target;
+
+    if (!files || !files[0]) return;
+
+    const uploadImage = files[0];
+
+    encodeFile(uploadImage);
   };
 
   return (
     <>
       <Nav></Nav>
       <ProfileContainer>
-        <ProfileWrapper>
-          <UserAvatar imgUrl={getAvatar}></UserAvatar>
+        <ProfileForm>
+          <UserAvatar
+            imgUrl={fileReaderThumbnail}
+            onClick={onClickImage}></UserAvatar>
+
+          <FileUploadInput
+            hidden
+            type="file"
+            accept="image/jpg, image/jpeg, image/png"
+            ref={inputRef}
+            onChange={onFileReaderChange}
+            name="image-input"></FileUploadInput>
+
           {!isEditing ? (
             <UserNickName>{nickName}</UserNickName>
           ) : (
@@ -82,7 +136,7 @@ function Profile() {
               <EditButton onClick={onCompleteEdit}>수정완료</EditButton>
             </>
           )}
-        </ProfileWrapper>
+        </ProfileForm>
       </ProfileContainer>
     </>
   );
@@ -104,7 +158,7 @@ const ProfileContainer = styled.div`
   align-items: center;
 `;
 
-const ProfileWrapper = styled.div`
+const ProfileForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -113,6 +167,8 @@ const ProfileWrapper = styled.div`
   border: 1px solid #7a5ccc;
   box-shadow: #dfd4ff28 2px 0 30px 2px;
 `;
+
+const FileUploadInput = styled.input``;
 
 const UserAvatar = styled.div`
   background-image: url(${(props) => props.imgUrl});
